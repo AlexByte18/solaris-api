@@ -1,0 +1,92 @@
+package com.tipyme.solaris_api.auth;
+
+import java.util.Collections;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.tipyme.solaris_api.auth.domain.dto.JwtAuthResponseDto;
+import com.tipyme.solaris_api.auth.domain.dto.LoginDto;
+import com.tipyme.solaris_api.auth.domain.dto.RegisterDto;
+import com.tipyme.solaris_api.roles.Role;
+import com.tipyme.solaris_api.roles.repository.RoleRespository;
+import com.tipyme.solaris_api.security.jwt.JwtGenerator;
+import com.tipyme.solaris_api.users.User;
+import com.tipyme.solaris_api.users.domain.mapper.UserMapper;
+import com.tipyme.solaris_api.users.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/auth")
+public class AuthController {
+    
+    private final AuthenticationManager authenticationManager;
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+    private final UserRepository userRepository;
+    private final RoleRespository roleRespository;
+    private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
+    private final JwtGenerator jwtGenerator;
+
+    @PostMapping("/login")
+    public ResponseEntity<JwtAuthResponseDto> authenticateUser(@RequestBody LoginDto loginDto) {
+        logger.info("login attempt for user: {}", loginDto.getUsername());
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword())
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            String token = jwtGenerator.generateToken(authentication);
+
+            return new ResponseEntity<>(
+                new JwtAuthResponseDto(token), 
+                HttpStatus.OK
+            );
+        } catch (Exception e) {
+            logger.error("Authentication failed for user: {}", loginDto.getUsername(), e);
+            throw e;
+        }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<String> register(
+        @RequestBody RegisterDto registerDto
+    ) {
+        if (userRepository.existsByUsername(registerDto.getUsername())) {
+            return  new ResponseEntity<>("User with username " + registerDto.getUsername() + " already exists", HttpStatus.BAD_REQUEST);
+        }
+
+        if (userRepository.existsByEmail(registerDto.getEmail())) {
+            return  new ResponseEntity<>("User with email " + registerDto.getEmail() + " already exists", HttpStatus.BAD_REQUEST);
+        }
+
+        User user = userMapper.registerDtoToUser(registerDto);
+        user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+
+        Role roles = roleRespository.findByName("USER").orElseThrow(
+            () -> new RuntimeException("Role not found")
+        );
+
+        user.setRoles(Collections.singleton(roles));
+
+        userRepository.save(user);
+
+        return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
+    }
+    
+}

@@ -8,6 +8,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
+import com.tipyme.solaris_api.auth.domain.dto.RegisterDto;
 import com.tipyme.solaris_api.users.User;
 import com.tipyme.solaris_api.users.domain.dto.UserRequestDto;
 import com.tipyme.solaris_api.users.domain.dto.UserResponseDto;
@@ -25,4 +26,8 @@ public interface UserMapper {
     @BeanMapping(nullValuePropertyMappingStrategy=NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target="id", ignore=true)
     void updateUserFromDto(UserUpdateDto dto, @MappingTarget User user);
+
+    @Mapping(target="password", ignore=true)
+    @Mapping(target="id", ignore=true)
+    User registerDtoToUser(RegisterDto registerDto);
 }

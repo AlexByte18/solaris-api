@@ -81,19 +81,21 @@ public class AuthController {
     ) {
         if (userRepository.existsByUsername(registerDto.getUsername())) {
             return  new ResponseEntity<>("User with username " + registerDto.getUsername() + " already exists", HttpStatus.BAD_REQUEST);
+            return  new ResponseEntity<>("User with username " + registerDto.getUsername() + " already exists", HttpStatus.CONFLICT);
         }
 
         if (userRepository.existsByEmail(registerDto.getEmail())) {
-            return  new ResponseEntity<>("User with email " + registerDto.getEmail() + " already exists", HttpStatus.BAD_REQUEST);
+            return  new ResponseEntity<>("User with email " + registerDto.getEmail() + " already exists", HttpStatus.CONFLICT);
         }
 
         User user = userMapper.registerDtoToUser(registerDto);
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
 
-        String requiredRoleName = "USER";
-        Role roles = roleRespository.findByName(requiredRoleName).orElseThrow(
-            () -> new IllegalStateException("Required role '" + requiredRoleName + "' not found in database")
-        );
+        Role roles = roleRespository.findByName("USER").orElse(null);
+        if (roles == null) {
+            logger.error("Required role 'USER' not found during registration");
+            return new ResponseEntity<>("An internal server error occurred. Please contact support.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
         user.setRoles(Collections.singleton(roles));
 

@@ -20,7 +20,7 @@ import com.tipyme.solaris_api.auth.domain.dto.JwtAuthResponseDto;
 import com.tipyme.solaris_api.auth.domain.dto.LoginDto;
 import com.tipyme.solaris_api.auth.domain.dto.RegisterDto;
 import com.tipyme.solaris_api.roles.Role;
-import com.tipyme.solaris_api.roles.repository.RoleRespository;
+import com.tipyme.solaris_api.roles.repository.RoleRepository;
 import com.tipyme.solaris_api.security.jwt.JwtGenerator;
 import com.tipyme.solaris_api.users.User;
 import com.tipyme.solaris_api.users.domain.mapper.UserMapper;
@@ -30,6 +30,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -41,7 +42,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
     private final UserRepository userRepository;
-    private final RoleRespository roleRespository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final JwtGenerator jwtGenerator;
@@ -54,7 +55,9 @@ public class AuthController {
             @ApiResponse(responseCode = "404", description = "User not found")
         }
     )
-    public ResponseEntity<JwtAuthResponseDto> authenticateUser(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<JwtAuthResponseDto> authenticateUser(
+        @Valid @RequestBody LoginDto loginDto
+    ) {
         logger.info("login attempt for user: {}", loginDto.getUsername());
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -77,21 +80,26 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(
-        @RequestBody RegisterDto registerDto
+        @Valid @RequestBody RegisterDto registerDto
     ) {
         if (userRepository.existsByUsername(registerDto.getUsername())) {
-            return  new ResponseEntity<>("User with username " + registerDto.getUsername() + " already exists", HttpStatus.BAD_REQUEST);
-            return  new ResponseEntity<>("User with username " + registerDto.getUsername() + " already exists", HttpStatus.CONFLICT);
+            return new ResponseEntity<>(
+                "User with username " + registerDto.getUsername() + " already exists", 
+                HttpStatus.CONFLICT
+            );
         }
 
         if (userRepository.existsByEmail(registerDto.getEmail())) {
-            return  new ResponseEntity<>("User with email " + registerDto.getEmail() + " already exists", HttpStatus.CONFLICT);
+            return new ResponseEntity<>(
+                "User with email " + registerDto.getEmail() + " already exists", 
+                HttpStatus.CONFLICT
+            );
         }
 
         User user = userMapper.registerDtoToUser(registerDto);
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
 
-        Role roles = roleRespository.findByName("USER").orElse(null);
+        Role roles = roleRepository.findByName("USER").orElse(null);
         if (roles == null) {
             logger.error("Required role 'USER' not found during registration");
             return new ResponseEntity<>("An internal server error occurred. Please contact support.", HttpStatus.INTERNAL_SERVER_ERROR);

@@ -90,8 +90,9 @@ public class AuthController {
         User user = userMapper.registerDtoToUser(registerDto);
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
 
-        Role roles = roleRespository.findByName("USER").orElseThrow(
-            () -> new RuntimeException("Role not found")
+        String requiredRoleName = "USER";
+        Role roles = roleRespository.findByName(requiredRoleName).orElseThrow(
+            () -> new IllegalStateException("Required role '" + requiredRoleName + "' not found in database")
         );
 
         user.setRoles(Collections.singleton(roles));

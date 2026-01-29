@@ -61,7 +61,7 @@ public class DataLoader implements CommandLineRunner {
             admin.setRoles(adminRoles);
 
             userRepository.save(admin);
-            System.out.println("Admin user created with email: admin@admin.com");
+            System.out.println("Admin user created with email: " + ADMIN_EMAIL);
         }
 
          if (userRepository.findByEmail(USER_EMAIL).isEmpty()) {

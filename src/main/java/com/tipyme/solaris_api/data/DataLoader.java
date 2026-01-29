@@ -3,6 +3,8 @@ package com.tipyme.solaris_api.data;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -10,7 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tipyme.solaris_api.roles.Role;
-import com.tipyme.solaris_api.roles.repository.RoleRespository;
+import com.tipyme.solaris_api.roles.repository.RoleRepository;
 import com.tipyme.solaris_api.users.User;
 import com.tipyme.solaris_api.users.repository.UserRepository;
 
@@ -19,8 +21,11 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class DataLoader implements CommandLineRunner {
+
+    private static final Logger logger = LoggerFactory.getLogger(DataLoader.class);
+
     private final UserRepository userRepository;
-    private final RoleRespository roleRepositoy;
+    private final RoleRepository roleRepositoy;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${dataloader.password}")
@@ -61,7 +66,7 @@ public class DataLoader implements CommandLineRunner {
             admin.setRoles(adminRoles);
 
             userRepository.save(admin);
-            System.out.println("Admin user created with email: " + ADMIN_EMAIL);
+            logger.info("Admin user created with email: " + ADMIN_EMAIL);
         }
 
          if (userRepository.findByEmail(USER_EMAIL).isEmpty()) {
@@ -78,7 +83,7 @@ public class DataLoader implements CommandLineRunner {
             user.setRoles(userRoles);
 
             userRepository.save(user);
-            System.out.println("User created with email: " + USER_EMAIL);
+            logger.info("User created with email: " + USER_EMAIL);
         }
 
     }

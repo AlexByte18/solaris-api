@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.tipyme.solaris_api.roles.Role;
 
 @Repository
-public interface  RoleRespository extends JpaRepository<Role, Long> {
+public interface  RoleRepository extends JpaRepository<Role, Long> {
      Optional<Role> getByName(String name);
      Optional<Role> findByName(String name);
 }

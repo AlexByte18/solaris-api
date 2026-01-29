@@ -9,9 +9,7 @@ import com.tipyme.solaris_api.users.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> getByUsername(String username);
     Optional<User> findByUsername(String username);
-    Optional<User> getByEmail(String email);
     Optional<User> findByEmail(String email);
 
     Boolean existsByUsername(String username);

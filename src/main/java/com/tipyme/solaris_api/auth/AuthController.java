@@ -26,11 +26,16 @@ import com.tipyme.solaris_api.users.User;
 import com.tipyme.solaris_api.users.domain.mapper.UserMapper;
 import com.tipyme.solaris_api.users.repository.UserRepository;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
+@Tag(name = "Authentication", description = "Endpoints for user authentication and registration")
 public class AuthController {
     
     private final AuthenticationManager authenticationManager;
@@ -42,6 +47,13 @@ public class AuthController {
     private final JwtGenerator jwtGenerator;
 
     @PostMapping("/login")
+    @Operation(summary = "Authenticate user and generate JWT token")
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "202", description = "Logging succeeded"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+        }
+    )
     public ResponseEntity<JwtAuthResponseDto> authenticateUser(@RequestBody LoginDto loginDto) {
         logger.info("login attempt for user: {}", loginDto.getUsername());
         try {

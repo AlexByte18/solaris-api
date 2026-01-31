@@ -60,7 +60,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Should return ResourceNotFoundException when ID does not exist")
+    @DisplayName("Should throw ResourceNotFoundException when ID does not exist")
     void shouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
         when(userRepository.findById(anyLong())).thenReturn((Optional.empty()));
 

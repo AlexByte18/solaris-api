@@ -9,6 +9,7 @@ import com.tipyme.solaris_api.products.dto.ProductResponseDto;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
+    ProductResponseDto toResponseDto(Product product);
     List<ProductResponseDto> toProductResponseDtoList(List<Product> products);
     
 }

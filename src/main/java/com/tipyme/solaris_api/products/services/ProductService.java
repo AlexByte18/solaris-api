@@ -13,4 +13,5 @@ public interface ProductService {
 
     Page <ProductResponseDto> findAll(String name, Pageable pageable);
     Product save(Product product);
+    Product findById(Long id);
 }

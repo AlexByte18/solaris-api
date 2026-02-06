@@ -11,6 +11,8 @@ import com.tipyme.solaris_api.products.Product;
 import com.tipyme.solaris_api.products.dto.ProductResponseDto;
 import com.tipyme.solaris_api.products.mapper.ProductMapper;
 import com.tipyme.solaris_api.products.repository.ProductRepository;
+import com.tipyme.solaris_api.shared.exceptions.ResourceNotFoundException;
+import com.tipyme.solaris_api.users.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -40,6 +42,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product save(Product product) {
         return productRepository.save(product);
+    }
+
+    @Override
+    public Product findById(Long id) {
+        return productRepository.findById(id).orElseThrow(
+            () -> new ResourceNotFoundException("Product with id " + id + " not found")
+        );
     }
     
 }

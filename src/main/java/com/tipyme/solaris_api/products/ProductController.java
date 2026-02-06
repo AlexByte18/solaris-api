@@ -1,11 +1,14 @@
 package com.tipyme.solaris_api.products;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,6 +31,8 @@ public class ProductController {
 
     private final ProductService productService;
     private final ProductMapper productMapper;
+
+    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
     
     @GetMapping
     public ResponseEntity<Page<ProductResponseDto>> index (
@@ -44,11 +49,24 @@ public class ProductController {
         @Valid @RequestBody ProductRequestDto productRequestDto
     ) {
         Product productToCreate = productMapper.toEntity(productRequestDto);
+
         Product product = productService.save(productToCreate);
         ProductResponseDto productResponseDto = productMapper.toResponseDto(product);
 
         return new ResponseEntity<>(productResponseDto, HttpStatus.CREATED);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponseDto> show(
+        @PathVariable Long id
+    ) {
+        logger.info("Tryinng to get info of product with id " + id);
+        Product product = productService.findById(id);
+        ProductResponseDto productResponseDto = productMapper.toResponseDto(product);
+
+        return ResponseEntity.ok(productResponseDto);
+    }
+    
     
 
 }

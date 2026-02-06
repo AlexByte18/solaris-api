@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,13 +61,21 @@ public class ProductController {
     public ResponseEntity<ProductResponseDto> show(
         @PathVariable Long id
     ) {
-        logger.info("Tryinng to get info of product with id " + id);
+        logger.info("Trying to get info of product with id " + id);
         Product product = productService.findById(id);
         ProductResponseDto productResponseDto = productMapper.toResponseDto(product);
 
         return ResponseEntity.ok(productResponseDto);
     }
     
-    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+        @PathVariable Long id
+    ) {
+        logger.info("Trying to delete product with id " + id);
+        productService.deleteById(id);
+
+        return ResponseEntity.noContent().build();
+    }
 
 }

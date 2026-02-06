@@ -1,5 +1,6 @@
 package com.tipyme.solaris_api.products;
 
+import org.apache.catalina.connector.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,8 @@ import com.tipyme.solaris_api.products.services.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 
 @RestController
@@ -64,6 +67,20 @@ public class ProductController {
         logger.info("Trying to get info of product with id " + id);
         Product product = productService.findById(id);
         ProductResponseDto productResponseDto = productMapper.toResponseDto(product);
+
+        return ResponseEntity.ok(productResponseDto);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductResponseDto> update(
+        @PathVariable Long id,
+        @Valid @RequestBody ProductRequestDto productRequestDto
+    ) {
+        logger.info("Trying to update product with id " + id);
+        Product productToUpdate = productService.findById(id);
+        productMapper.updateFromDto(productRequestDto, productToUpdate);
+        Product updatedProduct = productService.save(productToUpdate);
+        ProductResponseDto productResponseDto = productMapper.toResponseDto(updatedProduct);
 
         return ResponseEntity.ok(productResponseDto);
     }

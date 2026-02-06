@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 import com.tipyme.solaris_api.products.Product;
 import com.tipyme.solaris_api.products.dto.ProductRequestDto;
@@ -16,4 +17,10 @@ public interface ProductMapper {
 
     @Mapping(target = "id", ignore = true)
     Product toEntity(ProductRequestDto productRequestDto);
+
+    @Mapping(target = "id", ignore = true)
+    void updateFromDto(
+        ProductRequestDto productRequestDto,
+        @MappingTarget Product product
+    );
 }

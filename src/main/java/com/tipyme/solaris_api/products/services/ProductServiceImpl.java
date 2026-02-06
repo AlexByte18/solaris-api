@@ -36,5 +36,10 @@ public class ProductServiceImpl implements ProductService {
 
         return new PageImpl<>(productResponseDtos, pageable, productsPage.getTotalElements());
     }
+
+    @Override
+    public Product save(Product product) {
+        return productRepository.save(product);
+    }
     
 }

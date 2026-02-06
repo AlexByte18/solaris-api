@@ -12,4 +12,5 @@ public interface ProductService {
     // List<Product> findAll();
 
     Page <ProductResponseDto> findAll(String name, Pageable pageable);
+    Product save(Product product);
 }

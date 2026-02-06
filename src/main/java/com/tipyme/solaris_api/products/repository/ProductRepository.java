@@ -8,5 +8,5 @@ import com.tipyme.solaris_api.products.Product;
 
 public interface ProductRepository  extends JpaRepository<Product, Long>{
     Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
-    
+    boolean existsByCode(String code);
 }
